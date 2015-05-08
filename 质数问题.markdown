@@ -1,3 +1,10 @@
+Date: 2015-05-08 22:42
+Title: leetCode笔记
+Category: 算法
+slug: interview_leetCode
+Tags: 算法, 面试, leetCode
+
+[TOC]
 ## 质数问题
 > Count the number of prime numbers less than a non-negative number, n
 
@@ -52,7 +59,7 @@ int main()
 }
 ```
 
-但是代码提交后报计算次数过多, 复杂度是O(n**n)。后面看了提示用了一种`Sieve of Eratosthenes`的算法,复杂度在O(n**2)
+但是代码提交后报计算次数过多, 复杂度是O(n^n)。后面看了提示用了一种`Sieve of Eratosthenes`的算法,复杂度在O(n^2)
 
 1. 首先将`2~n`的整数列出来, 然后从`p=2`开始依次将`p*1,2,3...`的数剔除  
 2. 然后让`p`等于下一个未被去除的整数,继续剔除  

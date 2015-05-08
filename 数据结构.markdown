@@ -1,0 +1,42 @@
+Date: 2015-05-07 21:40
+Title: 数据结构
+Category: 数据结构
+slug: interview_datastruct
+Tags: 数据结构, 面试, 链表
+
+[TOC]
+## 链表
+### 单链表反转
+可以通过迭代和递归两种方法实现
+
+    struct ListNode {
+        int val;
+        struct ListNode *next;
+     };
+    //迭代
+    struct ListNode* reverseList(struct ListNode* head) 
+    {
+        if(head == NULL)
+            return head;
+        struct ListNode *p = head;
+        struct ListNode *q = head->next;
+        head->next = NULL;
+        while(q != NULL)
+        {
+            struct ListNode *s = q->next;
+            q->next = p;
+            p = q;
+            q = s;
+        }
+        return p;
+    }
+    //递归
+    struct ListNode* reverseList(struct ListNode* head) 
+    {
+        if(head == NULL || head->next == NULL)
+            return head;
+        struct ListNode *q = reverseList(head->next);
+        head->next->next = head;
+        head->next = NULL;
+        return q;
+    }
