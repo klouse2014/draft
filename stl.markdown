@@ -18,7 +18,7 @@
 4. 只提供元素个数时, 元素必须为内置或复合类型, 或者提供了默认构造函数的类型
 ```cpp
 char *words[] = {'111','222','333'};
-list<string> words2(words, words+3)
+list<string> words2(words, words+3);
 ```
 ### 容器内元素的类型约束
 * 元素类型必须支持赋值运算
@@ -56,13 +56,13 @@ list<string> words2(words, words+3)
 
 **begin和end成员：**  
 begin和end操作产生指向容器内第一个元素和最后一个元素的下一个位置的迭代器
-* c.begin() 返回一个迭代器, 指向c的第一个元素
-* c.end() 返回一个迭代器, 指向c的最后一个元素的下一个位置
-* c.rbegin() 返回一个逆序迭代器, 指向容易c的最后一个元素
-* c.rend() 返回一个逆序迭代器, 指向容器c的第一个元素前面的位置  
+* `c.begin()` 返回一个迭代器, 指向c的第一个元素
+* `c.end()` 返回一个迭代器, 指向c的最后一个元素的下一个位置
+* `c.rbegin()` 返回一个逆序迭代器, 指向容易c的最后一个元素
+* `c.rend()` 返回一个逆序迭代器, 指向容器c的第一个元素前面的位置  
 每个操作均有两个版本, 如果容器是const, 则其返回类型要加上`const_`前缀
 
-**添加元素的操作：**
+**添加元素的操作：**  
 容器元素都是副本, 系统是将元素值复制到容器中. 被复制的原始值与新容器中的元素各不相关  
 * `c.push_back(t)` 在容器c的尾部添加值为t的元素, 返回void
 * `c.push_front(t)` 在容器c的前端添加值为t的元素, 只适用于list和deque容器类型, 返回void
@@ -73,7 +73,7 @@ begin和end操作产生指向容器内第一个元素和最后一个元素的下
 1. 任何insert或push操作都可能导致迭代器失效, 当编写循环将元素插入到vector或deque容器中时, 程序必须确保迭代器在每次循环后都得到更新  
 2. 避免存储end操作返回的迭代器, 添加或删除deque或vector容器内的元素都会导致存储的迭代器失效. 可以在每次完成插入运算后重新计算end迭代器  
 
-**顺序容器的大小操作：**
+**顺序容器的大小操作：**  
 * `c.size()` 返回容器c中的元素个数. 返回类型为c::size_type
 * `c.max_size()` 返回容器c可容纳的的最多元素个数. 返回类型为c::size_type
 * `c.empty()` 返回容器大小是否为0
@@ -103,10 +103,87 @@ if(!ilist.empty()){
 * `c.erase(b,e)` 删除迭代器b和e所标记的范围内所有的元素, 返回一个迭代器指向被删除元素后面的元素
 * `c.clear()` 删除容器c内的所有元素, 返回void
 * `c.pop_back()` 删除容器c的最后一个元素, 返回void
-* `c.pop_front` 删除容器c的第一个元素, 返回void. 只适用于list或deque容器
+* `c.pop_front()` 删除容器c的第一个元素, 返回void. 只适用于list或deque容器
 
 1. pop_front和pop_back返回的不是删除元素的值, 而是void
+2. erase, pop_front, pop_back函数会使指向被删除元素的所有迭代器失效. vector容器会使其后的元素迭代器失效, deque如果删除不包含第一个或最后一个元素则所有迭代器都会失效  
 
+```cpp
+string searchValue("abc")
+list<string>::iterator iter = find(slist.begin(), slist.end(), searchValue);
+if(iter != slist.end())
+    slist.erase(iter);
+```
+
+**赋值与swap：**
+* `c1 = c2` 删除容器c1的所有元素, 然后将c2的元素复制给c1. c1和c2的类型(容器和元素类型)必须相同
+* `c1.swap(c2)` c1与c2交换内容
+* `c.assign(b,e)` 重新设置c的元素, 将迭代器b,e标识范围内的元素复制到c中
+* `c.assign(n,t)` 将容器c重新存储为n个值为t的元素
+
+1. 与赋值相关的操作符作用于整个容器, 除了swap操作外其他操作都可以用erase和insert操作实现
+2. 赋值要求容器和元素类型必须一致, 但assign可以对不同容器、不同但相互兼容的元素类型操作
+3. swap要交换的容器类型和元素类型必须一致. 由于swap操作不会删除或插入任何元素, 容器内没有移动任何元素, 因此迭代器不会失效. 如果一个迭代器iter指向svec1[3], swap运算后该迭代器指向svec2[3]
+
+```cpp
+slist1 = slist2;
+slist1.assign(slist2.begin(), slist2.end());
+slist1.assign(10, "abc!");
+```
+
+**capacity和reserve：**
+* `capacity()`操作获取在容器需要分配更多存储空间之前能够存储的元素总数
+* `reserve()`操作告诉vector容器应该预留多少个元素的存储空间
+* `size()`操作指容器当前拥有的元素个数
+
+### 容器选用
+* 如果程序要求随机访问元素, 则应使用vector或deque容器
+* 如果程序必须在容器的中间位置插入或删除元素, 则应采用list容器
+* 如果程序不是在中间位置而是容器首部或尾部插入或删除元素, 则采用deque容器
+* 如果读取输入时在容器中间位置插入元素, 然后需要随机访问. 可以先读入到list容器, 在复制到vector容器中
+
+### string类型
+pass  
+
+### 容器适配器  
+除了顺序容器, 标准库还提供了三种顺序容器适配器: queue, priority_queue, stack  
+**适配器**包含容器适配器、迭代器适配器和函数适配器. 本质上, 适配器是使一事物的行为类似于另一事物的行为的一种机制. 容器适配器让一种已存在的容器类型采用另一种不同的抽象类型的工作方式实现. 例如stack适配器可使任何一种顺序容器以栈的方式工作  
+ 
+**通用的操作和类型**  
+* size_type 一种类型, 足以存储此适配器类型最大对象的长度
+* value_tpye 元素类型
+* container_type 基础容器的类型, 适配器在此容器类型上实现
+* `A a` 创建一个新空适配器
+* `A a(c)` 创建一个新适配器, 初始化为容器c的副本
+* 关系操作符 适配器都支持`== != < <= > >=` 
+
+**覆盖基础容器类型**  
+1. 默认的stack和queue都是基于deque容器实现的, 而priority_queue则是在vector容器上实现的  
+2. 在创建适配器时, 通过将一个顺序容器指定为适配器的第二个类型实参, 可覆盖其关联的基础容器类型  
+3. 对于给定适配器, 其关联容器必须满足一定的约束条件. *stack*关联的基础容器可以是任意一种顺序容器类型, 因此可以建立在vector, list或deque上; *queue*要求基础容器必须提供push_front运算, 因此不能建立在vector上; *priority_queue*要求提供随机访问能力, 因此可以建立在vector和deque上, 不能建立在list上  
+
+```cpp
+stack<string, vector<string> > str_stk;
+stack<string, vector<string> > str_stk(svec);
+```
+
+**栈适配器**  
+* `s.empty()` 如果栈为空, 返回true否则false
+* `s.size()` 返回栈中元素的个数
+* `s.push(item)` 在栈顶压入新元素
+* `s.pop()` 删除栈顶元素的值, 但不返回其值
+* `s.top()` 返回栈顶元素的值, 但不删除该元素
+
+
+**队列和优先级队列**  
+必须包含"queue"头文件. queue为先入先出队列, priority_queue允许用户为队列中存储的元素设置优先级, 将元素放在比他优先级低的元素前面  
+* `q.empty()` 如果队列为空, 返回true否则false  
+* `q.size()` 返回队列中元素的个数
+* `q.push(item)` 对于queue在队尾压入一个新元素, 在优先级队列基于优先级的适当位置插入新元素
+* `q.pop()` 删除首元素, 但不返回值
+* `q.front()` 返回队首元素的值, 但不删除. 只适用于队列
+* `q.back()` 返回队尾元素的值, 但不删除. 只适用于队列
+* `q.top()` 返回具有最高优先级的元素, 但不删除. 只适用于优先级队列  
 
 
 
